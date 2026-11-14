@@ -4,3 +4,5 @@ i wanna end everyone who thought of not allowing model imports
 #### this is so stupid fml
 
 ![mococo](resources/textures/moc.png)
+
+also yeah most of the code is from [LearnOpenGL](https://learnopengl.com/), they're goated
