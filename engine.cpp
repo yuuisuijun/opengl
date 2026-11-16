@@ -41,9 +41,10 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // lighting
-glm::vec3 lightPos(6.0f, 2.0f, 3.0f);
+glm::vec3 lightPos(6.0f, 0.0f, 10.0f);
 
 unsigned int floorVAO, wallVAO, wallWindowVAO, carpetVAO;
+unsigned int backwallVAO, ceilingVAO; // these should be optimized later lmao
 unsigned int cubeTexture, floorTexture, wallTexture, carpetTexture;
 
 int main()
@@ -106,13 +107,13 @@ int main()
     };
     float wallVertices[] = {
         // positions          // normals    // texture Coords 
-        12.0f, -0.5f,  6.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        12.0f, 3.5f,  6.0f, 1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-        12.0f, 3.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        12.0f, -0.5f,  6.0f,  -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        12.0f, 3.5f,  6.0f, -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+        12.0f, 3.5f, 0.0f,  -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-        12.0f, -0.5f,  6.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        12.0f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        12.0f, 3.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f
+        12.0f, -0.5f,  6.0f,  -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        12.0f, -0.5f, 0.0f,  -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        12.0f, 3.5f, 0.0f,  -1.0f, 0.0f, 0.0f, 1.0f, 0.0f
     };
     float wallWindowVertices[] = {
         // positions          // texture Coords 
@@ -160,6 +161,27 @@ int main()
         6.1f, 2.5f,  6.0f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
         5.9f, 0.7f, 6.0f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
         5.9f, 2.5f, 6.0f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+    };
+    // these should be removed later
+    float backwallVertices[] = {
+        // positions          // normals    // texture Coords 
+        0.0f, -0.5f,  6.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 3.5f,  6.0f, 1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+        0.0f, 3.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+
+        0.0f, -0.5f,  6.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 3.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f
+    };
+    float ceilingVertices[] = {
+        // positions          // normals    // texture Coords 
+        12.0f, 3.5f,  6.0f,  0.0f, -1.0f, 0.0f, 2.0f, 0.0f,
+        0.0f, 3.5f,  6.0f,  0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 3.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, 2.0f,
+
+        12.0f, 3.5f,  6.0f,  0.0f, -1.0f, 0.0f, 2.0f, 0.0f,
+        0.0f, 3.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, 2.0f,
+        12.0f, 3.5f, 0.0f,  0.0f, -1.0f, 0.0f, 2.0f, 2.0f
     };
 
     float carpetVertices[] = {
@@ -280,6 +302,35 @@ int main()
     glBindVertexArray(carpetVAO);
     glBindBuffer(GL_ARRAY_BUFFER, carpetVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(carpetVertices), &carpetVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glBindVertexArray(0);
+    
+
+    // remove later
+    unsigned int ceilingVBO;
+    glGenVertexArrays(1, &ceilingVAO);
+    glGenBuffers(1, &ceilingVBO);
+    glBindVertexArray(ceilingVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, ceilingVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ceilingVertices), &ceilingVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glBindVertexArray(0);
+    unsigned int backwallVBO;
+    glGenVertexArrays(1, &backwallVAO);
+    glGenBuffers(1, &backwallVBO);
+    glBindVertexArray(backwallVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, backwallVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(backwallVertices), &backwallVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
@@ -409,19 +460,18 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightPos.x = 5.0f + sin(glfwGetTime()) * 2.0f;
-        lightPos.y = 1.0f + sin(glfwGetTime() / 2.0f) * 1.0f;
-        lightPos.z = 2.0f + sin(glfwGetTime() / 2.0f) * 1.0f;
+        lightPos.x = 6.0f + cos(glfwGetTime()/2.0f) * 9.0f;
+        lightPos.y = sin(glfwGetTime()/2.0f) * 3.0f;
 
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
         float near_plane = 1.0f, far_plane = 20.5f;
-        lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); 
+        // lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); 
             // note that if you use a perspective projection matrix 
             // you'll have to change the light position as the current light position 
             // isn't enough to reflect the whole scene
-        // lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        lightView = glm::lookAt(lightPos, glm::vec3(6.0f, 0.0f, 3.0f), glm::vec3(0.0, 0.0, 1.0));
         lightSpaceMatrix = lightProjection * lightView;
         // render from light pov
         simpleDepthShader.use();
@@ -516,6 +566,36 @@ void renderScene(const Shader &shader) {
     glBindTexture(GL_TEXTURE_2D, wallTexture);
     glDrawArrays(GL_TRIANGLES, 0, 30);
         glBindVertexArray(0);
+    // ceiling
+    model = glm::scale(model, glm::vec3(1.1f, 1.0f, 1.1f));
+    model = glm::translate(model, glm::vec3(-0.5f, 0.0f, -0.25f));
+    shader.setMat4("model", model);
+
+    glBindVertexArray(ceilingVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, floorTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    // backwall
+        model = glm::mat4(1.0f);
+    shader.setMat4("model", model);
+
+    glBindVertexArray(backwallVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, wallTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    // oppositewall from window
+    model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(2.0f, 1.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(-12.0f, 0.0f, 0.0f));
+    shader.setMat4("model", model);
+    glBindVertexArray(wallVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, wallTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
     // carpet
     // glBindVertexArray(carpetVAO);
     // glActiveTexture(GL_TEXTURE0);
@@ -527,18 +607,18 @@ void renderScene(const Shader &shader) {
     //
 
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(3.0f, 1.5f, 4.0));
+    model = glm::translate(model, glm::vec3(4.0f, 1.5f, 4.0f));
     model = glm::scale(model, glm::vec3(0.5f));
     shader.setMat4("model", model);
     renderCube();
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(8.0f, 0.0f, 1.0));
+    model = glm::translate(model, glm::vec3(8.0f, 0.0f, 1.0f));
     model = glm::scale(model, glm::vec3(0.5f));
     shader.setMat4("model", model);
     renderCube();
     model = glm::mat4(1.0f);
     model = glm::translate(model, lightPos);
-    model = glm::translate(model, glm::vec3(0.0, 2.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f));
     model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
     model = glm::scale(model, glm::vec3(0.15));
     shader.setMat4("model", model);
@@ -629,13 +709,13 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.ProcessKeyboard(FORWARD, deltaTime*3);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.ProcessKeyboard(BACKWARD, deltaTime*3);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera.ProcessKeyboard(LEFT, deltaTime*3);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera.ProcessKeyboard(RIGHT, deltaTime*3);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

@@ -1,3 +1,5 @@
+// file with the screenshader thingies
+
 // arrumar o caminho longo dos shaders (generalizar o include/shaders/)
 
 #include "glad/glad.h"
