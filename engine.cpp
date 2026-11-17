@@ -85,6 +85,7 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_NORMALIZE);
 
     // build and compile shaders
     // -------------------------
@@ -381,7 +382,7 @@ int main()
 
 // depthMap
     // depth map FBO
-    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
     // depth texture
@@ -459,9 +460,14 @@ int main()
         // shadows, then screenquad, then final
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
 
+        float yValue = sin(glfwGetTime()/2.0f) * 3.0f;
         lightPos.x = 6.0f + cos(glfwGetTime()/2.0f) * 9.0f;
-        lightPos.y = sin(glfwGetTime()/2.0f) * 3.0f;
+        lightPos.y = yValue;
+        float dim = yValue * 0.2;   // play with these values to get the sunrise-noon-sunset gradient
+        glm::vec3 lightColor =  glm::vec3(0.8f + dim, 0.7 + dim, 0.5 + dim);
+
 
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
@@ -486,6 +492,7 @@ int main()
         // reset viewport
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_BACK);
 
         // render normally
         // ------
@@ -498,6 +505,7 @@ int main()
         shader.setVec3("viewPos", camera.Position);
         shader.setVec3("lightPos", lightPos);
         shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        shader.setVec3("lightColor", lightColor);
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
@@ -604,7 +612,7 @@ void renderScene(const Shader &shader) {
     // shader.setMat4("model", model);
     // glDrawArrays(GL_TRIANGLES, 0, 6);
     //     glBindVertexArray(0);
-    //
+    
 
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(4.0f, 1.5f, 4.0f));
@@ -612,7 +620,7 @@ void renderScene(const Shader &shader) {
     shader.setMat4("model", model);
     renderCube();
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(8.0f, 0.0f, 1.0f));
+    model = glm::translate(model, glm::vec3(8.0f, 0.01f, 1.0f));
     model = glm::scale(model, glm::vec3(0.5f));
     shader.setMat4("model", model);
     renderCube();
